@@ -8,9 +8,9 @@ function [Prey,FVal]=PP_DFOR(set_no)
 % set_no is the index of the run.
 
 %% PPGA parameters
-global generation;         % the current generation
-global lattice no_x no_y;  % the lattice and the size of it
-global Setslog run_no;     % Setslog and run_no
+global generation;           % the current generation
+global lattice no_x no_y;    % the lattice and the size of it
+global Setslog run_no;       % Setslog and run_no
 global max_rank KillInterval;
 
 %% General GP parameters
@@ -168,160 +168,164 @@ MovePrey(0, 0, 0);   % MovePrey(0,0,0) makes sure that the ends of the lattice a
     %disp(FVal);
     PlotPareto(FVal,fonrank,generation);
     
-%     if(rem(generation,10)==0)
-%         [Prey_add,FVal_add]=create_population(prey_add);
-%         x=[Prey.err];
-%         [~,pos]=maxk(x,prey_add);   % Replacing worst prey_add preys with new population
-%         Prey(1,pos)=Prey_add;
-%         FVal(pos,:)=FVal_add;
-%     end    
-% %  else    
-% %  % Movement of preys one step based on (rand<move_prey)- given 10 chances
-% %    for Pop_index = 1 : Pop_size
-% %         if rand < move_prey
-% %             %Identify location
-% %             [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == Pop_index);
-% %             xpos = xpos+1; ypos = ypos+1;
-% %             for j = 1:10     %10 trials for free spot
-% %                 dx = round(rand*(3-eps)-1.5);                                     %-1 to the left, 0 no move, 1 to the right
-% %                 dy = round(rand*(3-eps)-1.5);                                     %-1 down, 0 no move, 1 up
-% %                 if lattice(xpos+dx,ypos+dy) == 0
-% %                     lattice(xpos,ypos) = 0;                                       %removing prey i
-% %                     MovePrey(xpos+dx, ypos+dy, Pop_index);                        %Move prey to new position
-% %                     break
-% %                 end
-% %             end
-% %         end
-% %     end
-% % 
+     if(rem(generation,10)==0)
+         [Prey_add,FVal_add]=create_population(prey_add);
+         x=[Prey.err];
+         [~,pos]=maxk(x,prey_add);   % Replacing worst prey_add preys with new population
+         Prey(1,pos)=Prey_add;
+         FVal(pos,:)=FVal_add;
+     end    
+   else    
+  % Movement of preys one step based on (rand<move_prey)- given 10 chances
+     for Pop_index = 1 : Pop_size
+         if rand < move_prey
+            %Identify location
+            [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == Pop_index);
+           xpos = xpos+1; ypos = ypos+1;
+            for j = 1:10     %10 trials for free spot
+                dx = round(rand*(3-eps)-1.5);                                     %-1 to the left, 0 no move, 1 to the right
+             dy = round(rand*(3-eps)-1.5);                                     %-1 down, 0 no move, 1 up
+              if lattice(xpos+dx,ypos+dy) == 0
+                    lattice(xpos,ypos) = 0;                                       %removing prey i
+                   MovePrey(xpos+dx, ypos+dy, Pop_index);                        %Move prey to new position
+                   break
+                end
+          end
+        end
+    end
+
 % % %  Breeding of the preys
-% %   
-% %     for Pop_index = 1 : Pop_size
-% %         [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == Pop_index);
-% %         xpos = xpos+1; ypos = ypos+1;
-% %         moore = lattice(xpos-1:xpos+1,ypos-1:ypos+1);                             % Moore's neighbourhood of a prey
-% %         %Remove the i-prey
-% %         moore(2,2) = 0;
-% %         [matex,matey] = find(moore >= 1 & moore <= Pop_size);
-% %         if ~isempty(matex)
-% %             comp=[];
-% %             parent2 = ceil(rand*length(matex));
-% %             for i=1:length(matex)
-% %                 parent2 = lattice(xpos-2+matex(i),ypos-2+matey(i));       % For Crossover select the best prey in the moore's
-% %                 e=Prey(parent2).err;c=Prey(parent2).complexity;           % neighbourhood. Form of Elitism-xover of good preys
-% %                 comp=[comp;parent2,e,c];                                  % error given 1st priority then complexity
-% %             end    
-% %             comp=sortrows(comp,[2 3]);
-% %             parent2=comp(1,1);
-% %             %Crossover between two forest individuals
-% %             [Offsprng, FVal_offsp] = create_offspring(Pop_index,parent2,Prey); 
-% %             
-% %             %Random placement of offsprings /10 trials
-% %             for l = 1:2
-% %                 for j=1:10 %10 trial for free spot
-% %                     xpos = round(rand(1,1)*(no_x-1)+1)+1;
-% %                     ypos = round(rand(1,1)*(no_y-1)+1)+1;
-% %                     if lattice(xpos,ypos)==0
-% %                         Prey = [Prey Offsprng(l)];                               %New offspring given ten chances to place in
-% %                         FVal = [FVal ; FVal_offsp(l,:)];                         %any position of the lattice.Offspring added at
-% %                         lattice(xpos,ypos) = length(Prey);                       %bottom of old prey structure.
-% %                         break
-% %                     end
-% %                 end
-% %             end
-% %          end
-% %         MovePrey(0, 0, 0);
-% %    end
-% %   
-% %    [fonrank, front] = NONDOM_SORT([FVal]);                                         %Both fonrank and front are of size of pop
-% %                                                                                    %have the fonseca rank and front no ,resp.
-% %                                                                                 
+ 
+   for Pop_index = 1 : Pop_size
+       [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == Pop_index);
+        xpos = xpos+1; ypos = ypos+1;
+    moore = lattice(xpos-1:xpos+1,ypos-1:ypos+1);                             % Moore's neighbourhood of a prey
+      %Remove the i-prey
+     moore(2,2) = 0;
+     [matex,matey] = find(moore >= 1 & moore <= Pop_size);
+      if ~isempty(matex)
+           comp=[];
+          parent2 = ceil(rand*length(matex));
+         for i=1:length(matex)
+               parent2 = lattice(xpos-2+matex(i),ypos-2+matey(i));       % For Crossover select the best prey in the moore's
+              e=Prey(parent2).err;c=Prey(parent2).complexity;           % neighbourhood. Form of Elitism-xover of good preys
+              comp=[comp;parent2,e,c];                                  % error given 1st priority then complexity
+          end    
+           comp=sortrows(comp,[2 3]);
+            parent2=comp(1,1);
+           %Crossover between two forest individuals
+           [Offsprng, FVal_offsp] = create_offspring(Pop_index,parent2,Prey); 
+            
+           %Random placement of offsprings /10 trials
+            for l = 1:2
+                for j=1:10 %10 trial for free spot
+                  xpos = round(rand(1,1)*(no_x-1)+1)+1;
+                   ypos = round(rand(1,1)*(no_y-1)+1)+1;
+                   if lattice(xpos,ypos)==0
+                       Prey = [Prey Offsprng(l)];                               %New offspring given ten chances to place in
+                       FVal = [FVal ; FVal_offsp(l,:)];                         %any position of the lattice.Offspring added at
+                       lattice(xpos,ypos) = length(Prey);                       %bottom of old prey structure.
+                        break
+                  end
+               end
+             end
+        end
+      MovePrey(0, 0, 0);
+  end
+  
+   [fonrank, front] = NONDOM_SORT([FVal]);                                         %Both fonrank and front are of size of pop
+                                                                                   %have the fonseca rank and front no ,resp.
+                                                                                
 % % % Removing Preys every KillInterval with (Fonseca rank> max_rank)
-% % 
-% %     if generation/KillInterval == round(generation/KillInterval)
-% %         if generation < n_gen
-% %              %Generate new prey to balance the population
-% %              [Prey_new, FVal_new] = create_population(no_new_Prey);
-% %          end
-% %         indfr = find(fonrank > max_rank);
-% %         FVal(indfr,:) = F_bad+eps;
-% %         [Prey ,FVal] = KillBadPrey(Prey, FVal);  % Erases the prey's with fitness equal to F_bad
-% %         [fonrank,front] = NONDOM_SORT([FVal]);   % Perform ranking after KillInterval
-% %     
-% %     end
-% %     
+
+ if generation/KillInterval == round(generation/KillInterval)
+       if generation < n_gen
+            %Generate new prey to balance the population
+            [Prey_new, FVal_new] = create_population(no_new_Prey);
+        end
+        indfr = find(fonrank > max_rank);
+        FVal(indfr,:) = F_bad+eps;
+       [Prey ,FVal] = KillBadPrey(Prey, FVal);  % Erases the prey's with fitness equal to F_bad
+      [fonrank,front] = NONDOM_SORT([FVal]);   % Perform ranking after KillInterval
+    
+   end
+   
 % % % Killing of preys by predators
-% % 
-% %   crodit = CROW_SORT([FVal], front); 
-% %   FValKill = [];
-% %   FValKill(:,1) = (FVal(:,1) - min(FVal(:,1)))./(max(FVal(:,1)) - min(FVal(:,1)));
-% %   FValKill(:,2) = (FVal(:,2) - min(FVal(:,2)))./(max(FVal(:,2)) - min(FVal(:,2)));
-% % 
-% %   PredMoves = floor((length(Prey) - no_Prey_preferred)/Predator_popsize);
-% %   fprintf('\nGeneration %i: Predatorpop %i PredMoves %i\n',generation,length(Predators(:,1)),PredMoves);
-% %   fprintf('Preypop before: %i; Preypop after: ', length(Prey))
-% % 
-% %     for i = 1:Predator_popsize
-% %         for k = 1:PredMoves
-% %             [xpos, ypos] = find(lattice(2:no_x+1,2:no_y+1) == -i);
-% %             xpos = xpos+1; ypos = ypos+1;
-% %             [matex,matey] = find(lattice(xpos-1:xpos+1,ypos-1:ypos+1) > 0);
-% %             if length(matex) > 1 %prey available
-% %                 rows=[];
-% %                 for t = 1:length(matex)
-% %                     rows = [rows; lattice(matex(t)+xpos-2,matey(t)+ypos-2)];
-% %                 end
-% %                 %Calculating Fitness Value for all Prey near Predator i, with Elitism
-% %                 f = (FValKill(rows,:)*[Predators(i);1-Predators(i)]).*(front(rows)-1);
-% % 
-% %                 %Using Crowding in case all Prey have same fitness
-% %                 if length(unique(front(rows))) == 1
-% %                     f = (f+1)./(1+crodit(rows));
-% %                 end
-% %                 
-% %                 %Killing Prey
-% %                 [~,pos] = max(f);
-% %                 j = rows(pos(1)); lattice(xpos,ypos) = 0; %removing predator i
-% %                 [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == j);
-% %                 xpos = xpos+1; ypos = ypos+1;
-% %                 Prey = MovePredator(Prey, xpos, ypos, i, j);
-% %                 FValKill(j,:) = []; FVal(j,:) = [];
-% %                 front(j) = []; crodit(j) = []; 
-% %                 fonrank(j) = [];
-% %           else    %Only move
-% %                   for j=1:10 %10 trial for free spot
-% %                      dx=round(rand*(3-eps)-1.5); %-1 to the left, 0 no move, 1 to the right
-% %                      dy=round(rand*(3-eps)-1.5); %-1 down, 0 no move, 1 up
-% %                      if lattice(xpos+dx,ypos+dy)==0
-% %                          lattice(xpos,ypos)=0; %removing predator i
-% %                          Prey = MovePredator(Prey, xpos+dx, ypos+dy, i, inf);
-% %                          break
-% %                      end
-% %                   end
-% %             end
-% %             
-% %         end
-% %         
-% %     end
+
+ crodit = CROW_SORT([FVal], front); 
+ FValKill = [];
+ FValKill(:,1) = (FVal(:,1) - min(FVal(:,1)))./(max(FVal(:,1)) - min(FVal(:,1)));
+ FValKill(:,2) = (FVal(:,2) - min(FVal(:,2)))./(max(FVal(:,2)) - min(FVal(:,2)));
+
+PredMoves = floor((length(Prey) - no_Prey_preferred)/Predator_popsize);
+fprintf('\nGeneration %i: Predatorpop %i PredMoves %i\n',generation,length(Predators(:,1)),PredMoves);
+fprintf('Preypop before: %i; Preypop after: ', length(Prey))
+
+for i = 1:Predator_popsize
+    for k = 1:PredMoves
+              [xpos, ypos] = find(lattice(2:no_x+1,2:no_y+1) == -i);
+              xpos = xpos+1; ypos = ypos+1;
+              [matex,matey] = find(lattice(xpos-1:xpos+1,ypos-1:ypos+1) > 0);
+              if length(matex) > 1 %prey available
+                 rows=[];
+                 for t = 1:length(matex)
+                   rows = [rows; lattice(matex(t)+xpos-2,matey(t)+ypos-2)];
+                 end
+                 %Calculating Fitness Value for all Prey near Predator i, with Elitism
+                 f = (FValKill(rows,:)*[Predators(i);1-Predators(i)]).*(front(rows)-1);
+
+                 %Using Crowding in case all Prey have same fitness
+                 if length(unique(front(rows))) == 1
+                    f = (f+1)./(1+crodit(rows));
+                 end
+              
+                %Killing Prey
+                 [~,pos] = max(f);
+                 j = rows(pos(1)); lattice(xpos,ypos) = 0; %removing predator i
+                 [xpos,ypos] = find(lattice(2:no_x+1,2:no_y+1) == j);
+                 xpos = xpos+1; ypos = ypos+1;
+                 Prey = MovePredator(Prey, xpos, ypos, i, j);
+                 FValKill(j,:) = []; FVal(j,:) = [];
+                 front(j) = []; crodit(j) = []; 
+                 fonrank(j) = [];
+               
+               else    %Only move
+                   for j=1:10 %10 trial for free spot
+                      dx=round(rand*(3-eps)-1.5); %-1 to the left, 0 no move, 1 to the right
+                      dy=round(rand*(3-eps)-1.5); %-1 down, 0 no move, 1 up
+                      if lattice(xpos+dx,ypos+dy)==0
+                          lattice(xpos,ypos)=0; %removing predator i
+                          Prey = MovePredator(Prey, xpos+dx, ypos+dy, i, inf);
+                          break
+                     end
+                     
+                   end
+            end
+            
+        end
+        
+    end
+    
 % % %Plotting Pareto Front and adding Prey_new if it is KillInterval 
-% %     fprintf('%i\n' , length(Prey))
-% %     PlotLattice 
-% %     PlotPareto(FVal, fonrank,generation)  
-% % 
+
+     fprintf('%i\n' , length(Prey))
+     PlotLattice 
+     PlotPareto(FVal, fonrank,generation)  
+
 % % %Random placement of New Prey /10 trials
-% % 
-% %     for i = 1:length(Prey_new)
-% %         for k = 1:10 %10 trial for free spot
-% %             [emptyx,emptyy] = find(lattice(2:no_x+1,2:no_y+1) == 0);
-% %             if ~isempty(emptyx > 0)
-% %                 j = ceil(rand*length(emptyx));
-% %                 lattice(emptyx(j)+1,emptyy(j)+1) = length(Prey) + 1;
-% %                 Prey = [Prey Prey_new(i)];
-% %                 FVal = [FVal; FVal_new(i,:)];
-% %                 break
-% %             end
-% %         end
-% %     end
+ 
+     for i = 1:length(Prey_new)
+         for k = 1:10 %10 trial for free spot
+             [emptyx,emptyy] = find(lattice(2:no_x+1,2:no_y+1) == 0);
+             if ~isempty(emptyx > 0)
+                 j = ceil(rand*length(emptyx));
+                 lattice(emptyx(j)+1,emptyy(j)+1) = length(Prey) + 1;
+                 Prey = [Prey Prey_new(i)];
+                 FVal = [FVal; FVal_new(i,:)];
+                 break
+             end
+         end
+     end
 % % 
 % %   
  end
